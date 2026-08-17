@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: customcraft_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-customcraft_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-customcraft_password}
+      POSTGRES_DB: ${POSTGRES_DB:-customcraft_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-customcraft_user} -d ${POSTGRES_DB:-customcraft_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: customcraft_backend
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://customcraft_user:customcraft_password@db:5432/customcraft_db}
+      SECRET_KEY: ${SECRET_KEY:-default_secret_key_for_dev_only}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    container_name: customcraft_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
