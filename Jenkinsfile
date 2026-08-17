@@ -18,12 +18,11 @@ pipeline {
             steps {
                 dir("${PYTHON_PATH}") {
                     echo 'Setting up Python environment and running Pytest backend tests...'
-                    sh '''
-                        python -m venv venv || python3 -m venv venv
-                        . venv/bin/activate
-                        pip install --upgrade pip
-                        pip install -r requirements.txt
-                        pytest
+                    bat '''
+                        python -m venv venv
+                        venv\\Scripts\\python.exe -m pip install --upgrade pip
+                        venv\\Scripts\\python.exe -m pip install -r requirements.txt
+                        venv\\Scripts\\python.exe -m pytest
                     '''
                 }
             }
@@ -33,8 +32,9 @@ pipeline {
             steps {
                 dir("${FRONTEND_PATH}") {
                     echo 'Installing frontend dependencies and building production bundle...'
-                    sh '''
-                        npm ci || npm install
+                    bat '''
+                        npm ci
+                        if %ERRORLEVEL% NEQ 0 npm install
                         npm run build
                     '''
                 }
