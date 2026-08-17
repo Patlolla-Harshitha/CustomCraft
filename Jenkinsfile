@@ -15,18 +15,19 @@ pipeline {
         }
 
         stage('Backend Test') {
-            steps {
-                dir("${PYTHON_PATH}") {
-                    echo 'Setting up Python environment and running Pytest backend tests...'
-                    bat '''
-                        python -m venv venv
-                        venv\\Scripts\\python.exe -m pip install --upgrade pip
-                        venv\\Scripts\\python.exe -m pip install -r requirements.txt
-                        venv\\Scripts\\python.exe -m pytest
-                    '''
-                }
-            }
+    steps {
+        dir("${PYTHON_PATH}") {
+            echo 'Setting up Python environment and running Pytest backend tests...'
+            bat '''
+                set "PYTHON_EXE=C:\\Users\\harshitha\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+                "%PYTHON_EXE%" -m venv venv
+                venv\\Scripts\\python.exe -m pip install --upgrade pip
+                venv\\Scripts\\python.exe -m pip install -r requirements.txt
+                venv\\Scripts\\python.exe -m pytest
+            '''
         }
+    }
+}
 
         stage('Frontend Build') {
             steps {
